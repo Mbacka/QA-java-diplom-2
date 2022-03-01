@@ -3,6 +3,7 @@ package praktikum.api.burger;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import praktickum.api.burger.UserClient;
@@ -14,10 +15,16 @@ import static org.junit.Assert.assertEquals;
 
 public class UserEditTest {
     private UserClient userClient;
+    private String accessToken;
 
     @Before
     public void setUp() {
         userClient = new UserClient();
+    }
+
+    @After
+    public void tearDown() {
+        userClient.delete(accessToken);
     }
 
     @Test
@@ -27,6 +34,7 @@ public class UserEditTest {
         login(data.get("email"), data.get("password"));
         String newPassword = RandomStringUtils.randomAlphabetic(10);
         Response response = userClient.edit(data.get("email"), newPassword, data.get("name"), "");
+        accessToken = data.get("accessToken");
         assertEquals("Некорректный статус код!", 401, response.statusCode());
         assertEquals("Запрос успешен!", false, response.path("success"));
         assertEquals("Некорректное сообщение!", "You should be authorised", response.path("message"));
@@ -39,6 +47,7 @@ public class UserEditTest {
         login(data.get("email"), data.get("password"));
         String newUsername = RandomStringUtils.randomAlphabetic(10);
         Response response = userClient.edit(data.get("email"), data.get("password"), newUsername, "");
+        accessToken = data.get("accessToken");
         assertEquals("Некорректный статус код!", 401, response.statusCode());
         assertEquals("Запрос успешен!", false, response.path("success"));
         assertEquals("Некорректное сообщение!", "You should be authorised", response.path("message"));
@@ -51,6 +60,7 @@ public class UserEditTest {
         login(data.get("email"), data.get("password"));
         String newEmail = RandomStringUtils.randomAlphabetic(5) + "@yandex.ru";
         Response response = userClient.edit(newEmail, data.get("password"), data.get("name"), "");
+        accessToken = data.get("accessToken");
         assertEquals("Некорректный статус код!", 401, response.statusCode());
         assertEquals("Запрос успешен!", false, response.path("success"));
         assertEquals("Некорректное сообщение!", "You should be authorised", response.path("message"));
@@ -63,6 +73,7 @@ public class UserEditTest {
         login(data.get("email"), data.get("password"));
         String newPassword = RandomStringUtils.randomAlphabetic(10);
         Response response = userClient.edit(data.get("email"), newPassword, data.get("name"), data.get("accessToken"));
+        accessToken = data.get("accessToken");
         assertEquals("Некорректный статус код!", 200, response.statusCode());
         assertEquals("Безуспешный запрос!", true, response.path("success"));
     }
@@ -74,6 +85,7 @@ public class UserEditTest {
         login(data.get("email"), data.get("password"));
         String newUsername = RandomStringUtils.randomAlphabetic(10);
         Response response = userClient.edit(data.get("email"), data.get("password"), newUsername, data.get("accessToken"));
+        accessToken = data.get("accessToken");
         assertEquals("Некорректный статус код!", 200, response.statusCode());
         assertEquals("Безуспешный запрос!", true, response.path("success"));
     }
@@ -85,6 +97,7 @@ public class UserEditTest {
         login(data.get("email"), data.get("password"));
         String newEmail = RandomStringUtils.randomAlphabetic(5) + "@yandex.ru";
         Response response = userClient.edit(newEmail, data.get("password"), data.get("name"), data.get("accessToken"));
+        accessToken = data.get("accessToken");
         assertEquals("Некорректный статус код!", 200, response.statusCode());
         assertEquals("Безуспешный запрос!", true, response.path("success"));
     }
@@ -97,12 +110,13 @@ public class UserEditTest {
         userClient.create(newEmail, data.get("password"), data.get("name"));
         login(data.get("email"), data.get("password"));
         Response response = userClient.edit(newEmail, data.get("password"), data.get("name"), data.get("accessToken"));
+        accessToken = data.get("accessToken");
         assertEquals("Некорректный статус код!", 403, response.statusCode());
         assertEquals("Безуспешный запрос!", false, response.path("success"));
         assertEquals("Некорректное сообщение!", "User with such email already exists", response.path("message"));
     }
 
-    private Map<String, String> create(){
+    private Map<String, String> create() {
         String email = RandomStringUtils.randomAlphabetic(5) + "@yandex.ru";
         String password = RandomStringUtils.randomAlphabetic(10);
         String username = RandomStringUtils.randomAlphabetic(10);
@@ -116,7 +130,7 @@ public class UserEditTest {
         return inputDataMap;
     }
 
-    private void login(String email, String password){
+    private void login(String email, String password) {
         userClient.login(email, password);
     }
 }

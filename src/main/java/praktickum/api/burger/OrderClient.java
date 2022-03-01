@@ -12,7 +12,7 @@ public class OrderClient extends RestAssuredClient {
 
     private static final String ORDER_PATH = "api/orders";
 
-    @Step
+    @Step("Создание заказа")
     public Response createOrder(List<String> ingredients, String token) {
         JSONObject requestBodyJson = new JSONObject();
         String requestBody = requestBodyJson
@@ -27,7 +27,7 @@ public class OrderClient extends RestAssuredClient {
         return response;
     }
 
-    @Step
+    @Step("Получение списка заказов")
     public Response getOrders(String token) {
         Response response = given()
                 .header("Authorization", token)

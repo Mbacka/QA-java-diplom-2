@@ -3,6 +3,7 @@ package praktikum.api.burger;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import praktickum.api.burger.IngredientsClient;
@@ -18,6 +19,7 @@ public class OrderCreateTest {
     OrderClient orderClient;
     UserClient userClient;
     IngredientsClient ingredientsClient;
+    private String accessToken;
 
     @Before
     public void setUp() {
@@ -26,10 +28,15 @@ public class OrderCreateTest {
         ingredientsClient = new IngredientsClient();
     }
 
+    @After
+    public void tearDown() {
+        userClient.delete(accessToken);
+    }
+
     @Test
     @DisplayName("Создание заказа без ингредиентов")
     public void createOrderWithoutIngredientsTest() {
-        String accessToken = login();
+        accessToken = login();
         Response response = orderClient.createOrder(null, accessToken);
         assertEquals("Некорректный статус код!", 400, response.statusCode());
         assertEquals("Запрос успешен!", false, response.path("success"));
@@ -39,7 +46,7 @@ public class OrderCreateTest {
     @Test
     @DisplayName("Создание заказа с неправильным ингредиентом")
     public void createOrderWithIncorrectIngredientTest() {
-        String accessToken = login();
+        accessToken = login();
         Response response = orderClient.createOrder(Arrays.asList("1213"), accessToken);
         assertEquals("Некорректный статус код!", 500, response.statusCode());
     }
@@ -47,7 +54,7 @@ public class OrderCreateTest {
     @Test
     @DisplayName("Создание заказа с авторизацией")
     public void createOrderWithAuthorizationTest() {
-        String accessToken = login();
+        accessToken = login();
         Response responseIngredients = ingredientsClient.getIngredients();
         List<String> ingredients = responseIngredients.path("data._id");
         Response response = orderClient.createOrder(ingredients, accessToken);
@@ -58,6 +65,7 @@ public class OrderCreateTest {
     @Test
     @DisplayName("Создание заказа без авторизации")
     public void createOrderWithoutAuthorizationTest() {
+        accessToken = login();
         Response responseIngredients = ingredientsClient.getIngredients();
         List<String> ingredients = responseIngredients.path("data._id");
         Response response = orderClient.createOrder(ingredients, "");
@@ -65,7 +73,7 @@ public class OrderCreateTest {
         assertEquals("Безуспешный запрос!", true, response.path("success"));
     }
 
-    private String login(){
+    private String login() {
         String email = RandomStringUtils.randomAlphabetic(5) + "@yandex.ru";
         String password = RandomStringUtils.randomAlphabetic(10);
         String username = RandomStringUtils.randomAlphabetic(10);

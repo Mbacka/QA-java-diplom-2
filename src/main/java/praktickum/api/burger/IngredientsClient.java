@@ -9,7 +9,7 @@ public class IngredientsClient extends RestAssuredClient {
 
     private static final String INGREDIENTS_PATH = "api/ingredients";
 
-    @Step
+    @Step("Получение ингредиентов")
     public Response getIngredients() {
         Response response = given()
                 .spec(getBaseSpec())

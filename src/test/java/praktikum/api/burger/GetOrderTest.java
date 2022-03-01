@@ -3,6 +3,7 @@ package praktikum.api.burger;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import praktickum.api.burger.IngredientsClient;
@@ -19,6 +20,7 @@ public class GetOrderTest {
     OrderClient orderClient;
     UserClient userClient;
     IngredientsClient ingredientsClient;
+    private String accessToken;
 
     @Before
     public void setUp() {
@@ -27,10 +29,15 @@ public class GetOrderTest {
         ingredientsClient = new IngredientsClient();
     }
 
+    @After
+    public void tearDown() {
+        userClient.delete(accessToken);
+    }
+
     @Test
     @DisplayName("Получить список заказов без авторизации")
     public void getOrderWithAuthorizationTest() {
-        String accessToken = createAndLogin();
+        accessToken = createAndLogin();
         Response responseIngredients = ingredientsClient.getIngredients();
         List<String> ingredients = responseIngredients.path("data._id");
         orderClient.createOrder(ingredients, accessToken);
@@ -43,7 +50,7 @@ public class GetOrderTest {
     @Test
     @DisplayName("Получить список заказов с авторизацией")
     public void getOrderWithoutAuthorizationTest() {
-        String accessToken = createAndLogin();
+        accessToken = createAndLogin();
         Response responseIngredients = ingredientsClient.getIngredients();
         List<String> ingredients = responseIngredients.path("data._id");
         orderClient.createOrder(ingredients, accessToken);
@@ -53,7 +60,7 @@ public class GetOrderTest {
         assertEquals("Некорректное сообщение!", "You should be authorised", response.path("message"));
     }
 
-    private String createAndLogin(){
+    private String createAndLogin() {
         String email = RandomStringUtils.randomAlphabetic(5) + "@yandex.ru";
         String password = RandomStringUtils.randomAlphabetic(10);
         String username = RandomStringUtils.randomAlphabetic(10);

@@ -10,7 +10,7 @@ public class UserClient extends RestAssuredClient {
 
     private static final String USER_PATH = "api/auth/";
 
-    @Step
+    @Step("Создание пользователя")
     public Response create(String email, String password, String username) {
         JSONObject requestBodyJson = new JSONObject();
         String requestBody = requestBodyJson
@@ -26,7 +26,7 @@ public class UserClient extends RestAssuredClient {
         return response;
     }
 
-    @Step
+    @Step("Авторизация пользователя")
     public Response login(String email, String password) {
         JSONObject requestBodyJson = new JSONObject();
         String requestBody = requestBodyJson
@@ -41,7 +41,7 @@ public class UserClient extends RestAssuredClient {
         return response;
     }
 
-    @Step
+    @Step("Изменение данных пользователя")
     public Response edit(String email, String password, String username, String token) {
         JSONObject requestBodyJson = new JSONObject();
         String requestBody = requestBodyJson
@@ -56,5 +56,20 @@ public class UserClient extends RestAssuredClient {
                 .when()
                 .patch(USER_PATH + "user/");
         return response;
+    }
+
+    @Step("Удаление созданного пользователя")
+    public void delete(String accessToken) {
+        if (accessToken == null) {
+            return;
+        }
+        given()
+                .spec(getBaseSpec())
+                .header("Authorization", accessToken)
+                .when()
+                .delete(USER_PATH + "user/")
+                .then()
+                .statusCode(202)
+                .log().status();
     }
 }
